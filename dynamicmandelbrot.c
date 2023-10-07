@@ -52,7 +52,7 @@ start_time=MPI_Wtime();
     double cx=((double)j-WIDTH/2)*4.0/WIDTH;
     double cy=((double)k-HEIGHT/2)*4.0/WIDTH;
     int iterations=0;
-    while(zx*zy+zy*zy<4.0&&iterations<MAX_ITER){
+    while(zx*zx+zy*zy<4.0&&iterations<MAX_ITER){
     double new_zx=zx*zx-zy*zy+cx;
     double new_zy=2*zx*zy+cy;
     zx=new_zx;
