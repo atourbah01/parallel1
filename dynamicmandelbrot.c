@@ -24,27 +24,21 @@ start_time=MPI_Wtime();
     // Calculate the number of rows per process
     int rows_per_process = HEIGHT / size;
     int remaining_rows= HEIGHT % size;
-    int* row_queue=(int*)malloc(sizeof(int)*HEIGHT);
+    int* row_queue=NULL;
     //Master node creates a queue
     if(rank==0){
     row_queue=(int*)malloc(sizeof(int)*HEIGHT);
     for(int i=0;i<HEIGHT;i++){
     row_queue[i]=i;}}
-    //Broadcast the row queue to all processes
-    MPI_Bcast(row_queue,HEIGHT,MPI_INT,0,MPI_COMM_WORLD);
-    int start_row=rank*rows_per_process;
-    int end_row=start_row+rows_per_process;
-    if(rank<remaining_rows){
-    rows_per_process++;
-    start_row+=rank;
-    end_row+=rank+1;}
-    else{
-    start_row+=remaining_rows;
-    end_row+=remaining_rows;}
+    int* local_row_queue= (int*)malloc(sizeof(int)*rows_per_process);
+    //Scatter the rows to all processes
+    MPI_Scatter(row_queue,rows_per_process,MPI_INT,local_row_queue,rows_per_process,MPI_INT,0,MPI_COMM_WORLD);
+    int start_row=local_row_queue[0];
+    int end_row=local_row_queue[rows_per_process-1]+1;
     local_mandelbrot=(int*)malloc(sizeof(int)*WIDTH*(end_row-start_row));
     comp_start=MPI_Wtime();
     //Calculate Mandelbrod set for assigned rows
-    for(int i=0;i<rows_per_process;i++){
+    for(int i=0;i< (end_row-start_row);i++){
     int k=start_row+i;
     for (int j=0;j<WIDTH;j++){
     double zx=0.0;
